@@ -1,8 +1,8 @@
-from sqlalchemy import text, engine_from_config
+from sqlalchemy import text, engine_from_config, create_engine
 from config import config
 
-
-engine = engine_from_config(config, prefix='db.')
+engine = create_engine('mysql://root:dinossauro12@localhost/mais_fit')
+#engine = engine_from_config(config, prefix='db.')
 
 
 def lista_sabores_ativos():
