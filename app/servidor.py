@@ -1,5 +1,5 @@
 from flask import Flask
-import app.database as db
+#import database as db
 
 app = Flask(__name__)
 
