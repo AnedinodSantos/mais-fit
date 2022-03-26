@@ -2,7 +2,6 @@ from sqlalchemy import text, engine_from_config
 from config import config
 
 
-#engine = create_engine("mysql://root:dinossauro12@localhost/mais_fit")
 engine = engine_from_config(config, prefix='db.')
 
 
