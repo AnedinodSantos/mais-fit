@@ -10,6 +10,3 @@ config = {
     'db.url': connect_string,
     'db.echo':'False'
 }
-
-
-#'mysql://root:dinossauro12@localhost/mais_fit'
