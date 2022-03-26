@@ -1,5 +1,5 @@
 from sqlalchemy import text, engine_from_config, create_engine
-from .config import config
+from config import config
 
 #engine = create_engine('mysql://root:dinossauro12@localhost/mais_fit')
 engine = engine_from_config(config, prefix='db.')
@@ -17,6 +17,3 @@ def lista_sabores_ativos():
             sabores.append(dict(item))
             item = rs.fetchone()
     return sabores
-
-# if __name__ == "__main__":
-#     print(lista_sabores_ativos())

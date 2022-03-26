@@ -1,5 +1,5 @@
 from flask import Flask
-from .database import *
+from database import *
 
 app = Flask(__name__)
 
@@ -15,6 +15,6 @@ def listar_sabores():
     return sabores
 
 
-# if __name__ == "__main__":
-#     app.run("localhost", port=5000, debug=True)
+if __name__ == "__main__":
+    app.run("localhost", port=5000, debug=True)
 #     app.run()
