@@ -1,1 +1,1 @@
-web: PYTHONPATH=`pwd`/.. gunicorn --bind 0.0.0.0:$PORT app.servidor:app
+web: gunicorn --bind 0.0.0.0:$PORT app.servidor:app

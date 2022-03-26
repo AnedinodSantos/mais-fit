@@ -1,5 +1,5 @@
 from flask import Flask
-import database as db
+from .database import *
 
 app = Flask(__name__)
 
@@ -11,7 +11,7 @@ def home():
 @app.route("/lista")
 def listar_sabores():
     sabores = {}
-    sabores["sabores"] = db.lista_sabores_ativos()
+    sabores["sabores"] = lista_sabores_ativos()
     return sabores
 
 
