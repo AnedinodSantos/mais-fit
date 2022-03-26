@@ -15,6 +15,6 @@ def listar_sabores():
     return sabores
 
 
-if __name__ == "__main__":
-    #app.run("localhost", port=5000, debug=True)
-    app.run()
+# if __name__ == "__main__":
+#     #app.run("localhost", port=5000, debug=True)
+#     app.run()
