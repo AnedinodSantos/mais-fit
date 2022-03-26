@@ -18,5 +18,5 @@ def lista_sabores_ativos():
             item = rs.fetchone()
     return sabores
 
-if __name__ == "__main__":
-    print(lista_sabores_ativos())
+# if __name__ == "__main__":
+#     print(lista_sabores_ativos())
