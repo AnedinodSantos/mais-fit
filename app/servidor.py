@@ -61,6 +61,5 @@ def veirfica_email(email):
         return {"message": "Já existe um cliente com esse E-mail"}, 200
     return {"message": "Não existe um cliente com esse E-mail"}, 400
 
-# lembrar de comentar essa parte quando for subir para o heroku
-if __name__ == "__main__":
-    app.run("localhost", port=5000, debug=True)
+# if __name__ == "__main__":
+#     app.run("localhost", port=5000, debug=True)
