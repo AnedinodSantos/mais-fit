@@ -1,4 +1,4 @@
-from sqlalchemy import text, engine_from_config, Integer
+from sqlalchemy import text, engine_from_config
 from config import config
 import jwt
 
@@ -46,10 +46,14 @@ def cadastrar_cliente(dados):
                     complemento=complemento, bairro=bairro, email=email, senha=senha)
 
 def listar_clientes():
+    """
+        Lista todos os clientes da base de dados baseado em filtros
+    """
+    #TODO -> precisamos implementar os filtros de buscas
     with engine.connect() as con:
         statement = text("""SELECT nome_completo, cpf, nascimento, genero, celular, cep, logradouro, numero, complemento, bairro, email, senha 
-                            FROM clientes
-                            WHERE ativo = 1""")
+                            FROM clientes"""
+                            )
         rs = con.execute(statement)
         clientes = []
         item = rs.fetchone()
@@ -59,7 +63,10 @@ def listar_clientes():
     return clientes
 
 
-def cliente_existe(cpf):
+def cpf_existe(cpf):
+    """
+        Verifica se já existe um cpf cadastrado no banco
+    """
     with engine.connect() as con:
         statement = text("""SELECT cpf 
                             FROM clientes
@@ -67,8 +74,21 @@ def cliente_existe(cpf):
         rs = con.execute(statement, cpf=cpf)
         item = rs.fetchone()
         if item:
-            return "cliente existe"
+            return True
+        else:
+            return False
 
-
-# if __name__ == "__main__":
-#     print(cliente_existe("11111111111"))
+def email_existe(email):
+    """
+        Verifica se já existe um e-mail cadastrado no banco
+    """
+    with engine.connect() as con:
+        statement = text("""SELECT email 
+                            FROM clientes
+                            WHERE email = :email""")
+        rs = con.execute(statement, email=email)
+        item = rs.fetchone()
+        if item:
+            return True
+        else:
+            return False
