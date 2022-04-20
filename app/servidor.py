@@ -55,7 +55,7 @@ def verifica_cpf(cpf):
     cpf_exists = cpf_existe(cpf)
     if cpf_exists:
         return {"message": "Ja existe um cliente com esse CPF "}, 200
-    return {"message": "Nao existe um cliente com esse CPF "}, 400
+    return {"message": "Nao existe um cliente com esse CPF "}, 404
 
 
 @app.route("/verifica-email/<email>")
@@ -63,7 +63,7 @@ def veirfica_email(email):
     email_exists = email_existe(email)
     if email_exists:
         return {"message": "Ja existe um cliente com esse E-mail"}, 200
-    return {"message": "Nao existe um cliente com esse E-mail"}, 400
+    return {"message": "Nao existe um cliente com esse E-mail"}, 404
 
 # lembrar de comentar essa parte quando for subir para o heroku
 if __name__ == "__main__":
