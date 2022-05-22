@@ -1,0 +1,27 @@
+{
+    "cliente_id": 1,
+    "formas_pagamento": [
+        {"meio_pagamento_id": 1, "qtd_pagamento": 1},
+        {"meio_pagamento_id": 2, "qtd_pagamento": 1}
+    ],
+    "itens_pedido":[
+        {
+            "kit_id": 1, 
+            "qtd_kit": 1, 
+            "preco": 70.00, 
+            "marmitas":[
+                {"marmita_id": 1, "qtd_marmita": 10}
+            ]
+        },
+        {
+            "kit_id": 1, 
+            "qtd_kit": 1, 
+            "preco": 70.00, 
+            "marmitas":[
+                {"marmita_id": 1, "qtd_marmita": 5},
+                {"marmita_id": 2, "qtd_marmita": 5}
+            ]
+        }
+    ]
+}
+

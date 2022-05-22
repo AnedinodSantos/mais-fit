@@ -65,6 +65,19 @@ def veirfica_email(email):
         return {"message": "Ja existe um cliente com esse E-mail"}, 200
     return {"message": "Nao existe um cliente com esse E-mail"}, 404
 
+
+@app.route("/pedidos", methods=['POST'])
+def faz_pedido():
+    pedido = request.json
+    cliente_id = pedido['cliente_id']
+    formas_pagamento = pedido['formas_pagamento']
+    itens_pedido = pedido['itens_pedido']
+
+    retorno = inserir_pedido(cliente_id, formas_pagamento, itens_pedido)
+
+    return {"message": "pedido efetuado com sucesso!", "id_pedido": retorno}, 200
+
+
 # lembrar de comentar essa parte quando for subir para o heroku
 if __name__ == "__main__":
     app.run("localhost", port=5000, debug=True)
