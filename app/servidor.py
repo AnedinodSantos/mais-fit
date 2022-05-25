@@ -13,9 +13,16 @@ CORS(app)
 def home():
     return "Olá, você está na API da mais-fit!"
 
+
 @app.route("/lista")
 def listar_sabores():
     return jsonify(lista_sabores_ativos()), 200
+
+
+@app.route("/kits")
+def listar_kits():
+    return jsonify(lista_kits_ativos()), 200
+
 
 @app.route("/formapagamento")
 def listar_pagamentos():

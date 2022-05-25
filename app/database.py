@@ -10,7 +10,7 @@ engine = engine_from_config(config, prefix='db.')
 
 def lista_sabores_ativos():
     with engine.connect() as con:
-        statement = text("""SELECT nome, descricao, link, ativo 
+        statement = text("""SELECT id, nome, descricao, link, ativo 
                             FROM marmitas
                             WHERE ativo = 1""")
         rs = con.execute(statement)
@@ -22,10 +22,24 @@ def lista_sabores_ativos():
     return sabores
 
 
+def lista_kits_ativos():
+    with engine.connect() as con:
+        statement = text("""SELECT id, descricao, qtd_max_marmitas, valor, ativo
+                            FROM kits
+                            WHERE ativo = 1""")
+        rs = con.execute(statement)
+        kits = []
+        item = rs.fetchone()
+        while (item != None):
+            kits.append(dict(item))
+            item = rs.fetchone()
+    return kits
+
+
 def lista_pagamentos_ativo():
     with engine.connect() as con:
         statement = text("""SELECT id, descricao, link 
-                            FROM meios_pagamento
+                            FROM meios_pagamentos
                             WHERE ativo = 1""")
         rs = con.execute(statement)
         pagamento = []
@@ -34,6 +48,7 @@ def lista_pagamentos_ativo():
             pagamento.append(dict(item))
             item = rs.fetchone()
     return pagamento
+
 
 def cadastrar_cliente(dados):
     nome_completo = dados["nome_completo"]
@@ -60,6 +75,7 @@ def cadastrar_cliente(dados):
                     nascimento=nascimento, genero=genero, celular=celular, cep=cep, 
                     logradouro=logradouro, numero=numero, 
                     complemento=complemento, bairro=bairro, email=email, senha=senha)
+
 
 def listar_clientes():
     """
@@ -94,6 +110,7 @@ def cpf_existe(cpf):
         else:
             return False
 
+
 def email_existe(email):
     """
         Verifica se já existe um e-mail cadastrado no banco
@@ -109,29 +126,29 @@ def email_existe(email):
         else:
             return False
 
+
 def inserir_pedido(cliente_id, formas_pagamento, itens_pedido):
 
     data_emissao = datetime.now()
 
     with engine.connect() as con:
         # inserindo pedido
-        statement = text (
-            """
-            INSERT INTO pedidos (status, data_emissao, id_cliente)
-            VALUES (:status, :data_emissao, :id_cliente)
-            """
-        )
+        statement = text ("""INSERT INTO pedidos 
+                            (status, data_emissao, cliente_id)
+                            VALUES (:status, :data_emissao, :cliente_id)""")
+
         con.execute(statement, status="iniciado", data_emissao=data_emissao,
-        id_cliente=cliente_id)
+                    cliente_id=cliente_id)
         # TODO -> verificar uma forma melhor de buscar o id do pedido
         # pode acontecer de pedidos serem feitos ao mesmo tempo, o que pode
         # causar um retorno errado da função abaixo.
-        id_pedido = retorna_id_ultimo_pedido()
+        pedido_id = retorna_id_ultimo_pedido()
         # após inserir o pedido, vou inserir as formas de pagamento do pedido
-        inserir_formas_pagamento(formas_pagamento, id_pedido)
+        inserir_formas_pagamento(formas_pagamento, pedido_id)
         # após, devemos inserir os itens do pedido
-        inserir_itens_pedido(itens_pedido, id_pedido)
-    return id_pedido
+        inserir_itens_pedido(itens_pedido, pedido_id)
+    return pedido_id
+
 
 def retorna_id_ultimo_pedido():
     with engine.connect() as con:
@@ -141,44 +158,56 @@ def retorna_id_ultimo_pedido():
             """
         )
         rs = con.execute(statement)
-        id_pedido = rs.fetchone()
-    return id_pedido[0]
+        pedido_id = rs.fetchone()
+    return pedido_id[0]
 
 
-def inserir_formas_pagamento(formas_pagamento, id_pedido):
+def inserir_formas_pagamento(formas_pagamento, pedido_id):
     with engine.connect() as con:
         for meios_pagamento in formas_pagamento:
             statement = text (
                 """
-                    INSERT INTO formas_pagamento (qtd, id_meios_pagamento, id_pedido)
-                    VALUES (:qtd, :id_meios_pagamento, :id_pedido)
+                    INSERT INTO formas_pagamentos (qtd, meio_pagamento_id, pedido_id)
+                    VALUES (:qtd, :meio_pagamento_id, :pedido_id)
                 """
             )
             con.execute(statement, qtd=meios_pagamento['qtd_pagamento'], 
-                        id_meios_pagamento=meios_pagamento['meio_pagamento_id'], 
-                        id_pedido=id_pedido)
+                        meio_pagamento_id=meios_pagamento['meio_pagamento_id'], 
+                        pedido_id=pedido_id)
 
 
-def inserir_itens_pedido(itens_pedido, id_pedido):
+def inserir_itens_pedido(itens_pedido, pedido_id):
     with engine.connect() as con:
         for kit in itens_pedido:
             statement = text (
                 """
-                    INSERT INTO itens_pedidos (qtd, preco, id_pedido, id_kit)
-                    VALUES (:qtd, :preco, :id_pedido, :id_kit)
+                    INSERT INTO itens_pedidos (preco, pedido_id, kit_id)
+                    VALUES (:preco, :pedido_id, :kit_id)
                 """
             )
-            con.execute(statement, qtd=kit['qtd_kit'], preco=kit['preco'],
-                        id_pedido=id_pedido, id_kit=kit['kit_id'])
+            con.execute(statement, preco=kit['preco'], pedido_id=pedido_id,
+                        kit_id=kit['kit_id'])
+
             for marmita in kit["marmitas"]:
                 statement = text (
                     """
-                        INSERT INTO itens_kits (qtd_marmita, id_marmita, id_kit, id_pedido)
-                        VALUES (:qtd_marmita, :id_marmita, :id_kit, :id_pedido)
+                        INSERT INTO itens_kits (qtd_marmita, marmita_id, item_pedido_id)
+                        VALUES (:qtd_marmita, :marmita_id, :item_pedido_id)
 
                     """
                 )
+                item_pedido_id = retorna_id_item_pedido(pedido_id)
                 con.execute(statement, qtd_marmita=marmita["qtd_marmita"],
-                            id_marmita=marmita['marmita_id'], 
-                            id_kit=kit['kit_id'],
-                            id_pedido=id_pedido)
+                            marmita_id=marmita['marmita_id'],
+                            item_pedido_id=item_pedido_id)
+
+
+def retorna_id_item_pedido(pedido_id):
+    with engine.connect() as con:
+        statement = text("""SELECT MAX(id) as maxId 
+                            FROM itens_pedidos
+                            WHERE pedido_id = :pedido_id""")
+        rs = con.execute(statement, pedido_id=pedido_id)
+        item_pedido_id = rs.fetchone()
+    return item_pedido_id[0]
+
