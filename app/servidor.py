@@ -83,8 +83,8 @@ def faz_pedido():
     retorno = inserir_pedido(cliente_id, formas_pagamento, itens_pedido)
     if retorno is not None:
         return {"message": "pedido efetuado com sucesso!", "pedido_id": retorno}, 200
-    else:
-        return {"message": "erro ao inserir pedido"}, 500
+    # else:
+    #     return {"message": "erro ao inserir pedido"}, 500
 
 
 # lembrar de comentar essa parte quando for subir para o heroku

@@ -133,7 +133,6 @@ def inserir_pedido(cliente_id, formas_pagamento, itens_pedido):
     
     with engine.connect() as con:
         try:
-            transaction = con.begin()
             # inserindo pedido
             statement = text ("""INSERT INTO pedidos 
                                 (status, data_emissao, cliente_id)
@@ -141,18 +140,15 @@ def inserir_pedido(cliente_id, formas_pagamento, itens_pedido):
 
             con.execute(statement, status="iniciado", data_emissao=data_emissao,
                         cliente_id=cliente_id)
-            # TODO -> verificar uma forma melhor de buscar o id do pedido
-            # pode acontecer de pedidos serem feitos ao mesmo tempo, o que pode
-            # causar um retorno errado da função abaixo.
+
             pedido_id = retorna_id_ultimo_pedido()
             # após inserir o pedido, vou inserir as formas de pagamento do pedido
             inserir_formas_pagamento(formas_pagamento, pedido_id)
             # após, devemos inserir os itens do pedido
             inserir_itens_pedido(itens_pedido, pedido_id)
-            transaction.commit()
+
             return pedido_id
         except Exception:
-            transaction.close()
             return None
 
 
@@ -192,7 +188,10 @@ def inserir_itens_pedido(itens_pedido, pedido_id):
                     VALUES (:preco, :pedido_id, :kit_id)
                 """
             )
-            con.execute(statement, preco=kit['preco'], pedido_id=pedido_id,
+
+            preco = buscar_preco_kit(kit['kit_id'])
+
+            con.execute(statement, preco=preco, pedido_id=pedido_id,
                         kit_id=kit['kit_id'])
 
             for marmita in kit["marmitas"]:
@@ -200,7 +199,6 @@ def inserir_itens_pedido(itens_pedido, pedido_id):
                     """
                         INSERT INTO itens_kits (qtd_marmita, marmita_id, item_pedido_id)
                         VALUES (:qtd_marmita, :marmita_id, :item_pedido_id)
-
                     """
                 )
                 item_pedido_id = retorna_id_item_pedido(pedido_id)
@@ -208,6 +206,13 @@ def inserir_itens_pedido(itens_pedido, pedido_id):
                             marmita_id=marmita['marmita_id'],
                             item_pedido_id=item_pedido_id)
 
+
+def buscar_preco_kit(kit_id):
+    with engine.connect() as con:
+        statement = text("""SELECT valor FROM kits WHERE id = :kit_id""")
+        rs = con.execute(statement, kit_id=kit_id)
+        preco = rs.fetchone()
+    return preco[0]
 
 def retorna_id_item_pedido(pedido_id):
     with engine.connect() as con:
