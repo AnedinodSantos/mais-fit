@@ -130,24 +130,30 @@ def email_existe(email):
 def inserir_pedido(cliente_id, formas_pagamento, itens_pedido):
 
     data_emissao = datetime.now()
-
+    
     with engine.connect() as con:
-        # inserindo pedido
-        statement = text ("""INSERT INTO pedidos 
-                            (status, data_emissao, cliente_id)
-                            VALUES (:status, :data_emissao, :cliente_id)""")
+        try:
+            transaction = con.begin()
+            # inserindo pedido
+            statement = text ("""INSERT INTO pedidos 
+                                (status, data_emissao, cliente_id)
+                                VALUES (:status, :data_emissao, :cliente_id)""")
 
-        con.execute(statement, status="iniciado", data_emissao=data_emissao,
-                    cliente_id=cliente_id)
-        # TODO -> verificar uma forma melhor de buscar o id do pedido
-        # pode acontecer de pedidos serem feitos ao mesmo tempo, o que pode
-        # causar um retorno errado da função abaixo.
-        pedido_id = retorna_id_ultimo_pedido()
-        # após inserir o pedido, vou inserir as formas de pagamento do pedido
-        inserir_formas_pagamento(formas_pagamento, pedido_id)
-        # após, devemos inserir os itens do pedido
-        inserir_itens_pedido(itens_pedido, pedido_id)
-    return pedido_id
+            con.execute(statement, status="iniciado", data_emissao=data_emissao,
+                        cliente_id=cliente_id)
+            # TODO -> verificar uma forma melhor de buscar o id do pedido
+            # pode acontecer de pedidos serem feitos ao mesmo tempo, o que pode
+            # causar um retorno errado da função abaixo.
+            pedido_id = retorna_id_ultimo_pedido()
+            # após inserir o pedido, vou inserir as formas de pagamento do pedido
+            inserir_formas_pagamento(formas_pagamento, pedido_id)
+            # após, devemos inserir os itens do pedido
+            inserir_itens_pedido(itens_pedido, pedido_id)
+            transaction.commit()
+            return pedido_id
+        except Exception:
+            transaction.close()
+            return None
 
 
 def retorna_id_ultimo_pedido():
@@ -159,6 +165,7 @@ def retorna_id_ultimo_pedido():
         )
         rs = con.execute(statement)
         pedido_id = rs.fetchone()
+
     return pedido_id[0]
 
 
@@ -210,4 +217,3 @@ def retorna_id_item_pedido(pedido_id):
         rs = con.execute(statement, pedido_id=pedido_id)
         item_pedido_id = rs.fetchone()
     return item_pedido_id[0]
-

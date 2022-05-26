@@ -1,9 +1,10 @@
 import os
 
-DB = "mysql"# os.environ.get("DB")
-USER = "root" # os.environ.get("USER")
-PASS = "dinossauro12"# os.environ.get("PASS")
-DB_URL = "localhost/dino_fit"# os.environ.get("DB_URL")
+
+DB = os.environ.get("DB")
+USER = os.environ.get("USER")
+PASS = os.environ.get("PASS")
+DB_URL = os.environ.get("DB_URL")
 
 connect_string = f'{DB}://{USER}:{PASS}@{DB_URL}'
 config = {
