@@ -113,5 +113,5 @@ async def faz_pedido():
 
 
 # lembrar de comentar essa parte quando for subir para o heroku
-# if __name__ == "__main__":
-#     app.run("localhost", port=5000, debug=True)
+if __name__ == "__main__":
+    app.run("localhost", port=5000, debug=True)
