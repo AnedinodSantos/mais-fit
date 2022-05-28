@@ -15,27 +15,39 @@ def home():
 
 
 @app.route("/lista")
-def listar_sabores():
-    return jsonify(lista_sabores_ativos()), 200
+async def listar_sabores():
+    try:
+        data = await lista_sabores_ativos()
+        return jsonify(data) , 200
+    except Exception:
+        return {"message": "Conexão perdida durante consulta ao banco"}, 503
 
 
 @app.route("/kits")
-def listar_kits():
-    return jsonify(lista_kits_ativos()), 200
+async def listar_kits():
+    try:
+        kits = await lista_kits_ativos()
+        return jsonify(kits), 200
+    except Exception:
+        return {"message": "Conexão perdida durante consulta ao banco"}, 503
 
 
 @app.route("/formapagamento")
-def listar_pagamentos():
-    return jsonify(lista_pagamentos_ativo())
+async def listar_pagamentos():
+    try:
+        pagamentos = await lista_pagamentos_ativo()
+        return jsonify(pagamentos)
+    except Exception:
+        return {"message": "Conexão perdida durante consulta ao banco"}, 503
 
 
 @app.route("/clientes", methods=['POST'])
-def cadastra_cliente():
+async def cadastra_cliente():
     dados_cliente = request.json
 
-    idade = retorna_idade(dados_cliente['nascimento'])
-    cpf_exists = cpf_existe(dados_cliente['cpf'])
-    email_exists = email_existe(dados_cliente['email'])
+    idade = await retorna_idade(dados_cliente['nascimento'])
+    cpf_exists = await cpf_existe(dados_cliente['cpf'])
+    email_exists = await email_existe(dados_cliente['email'])
 
     if cpf_exists:
         return {"message": "Ja existe um cliente com esse CPF"}, 400
@@ -45,7 +57,7 @@ def cadastra_cliente():
         return {"message": "Ja existe um cliente com esse e-mail"}, 400
 
     try:
-        cadastrar_cliente(dados_cliente)
+        await cadastrar_cliente(dados_cliente)
     except:
         return {"message": "Nao foi possivel cadastrar o cliente."}, 500
 
@@ -53,40 +65,53 @@ def cadastra_cliente():
 
 
 @app.route("/clientes", methods=['GET'])
-def lista_cliente():
-    return jsonify(listar_clientes()), 200
+async def listar_cliente():
+    try:
+        clientes = await listar_clientes()
+        return jsonify(clientes), 200
+    except Exception:
+        return {"message": "Conexão perdida durante consulta ao banco"}, 503
 
 
 @app.route("/verifica-cpf/<cpf>")
-def verifica_cpf(cpf):
-    cpf_exists = cpf_existe(cpf)
-    if cpf_exists:
-        return {"message": "Ja existe um cliente com esse CPF "}, 200
-    return {"message": "Nao existe um cliente com esse CPF "}, 404
+async def verifica_cpf(cpf):
+    try:
+        cpf_exists = await cpf_existe(cpf)
+        if cpf_exists:
+            return {"message": "Ja existe um cliente com esse CPF "}, 200
+        return {"message": "Nao existe um cliente com esse CPF "}, 404
+    except Exception:
+        return {"message": "Conexão perdida durante consulta ao banco"}, 503
 
 
 @app.route("/verifica-email/<email>")
-def veirfica_email(email):
-    email_exists = email_existe(email)
-    if email_exists:
-        return {"message": "Ja existe um cliente com esse E-mail"}, 200
-    return {"message": "Nao existe um cliente com esse E-mail"}, 404
+async def veirfica_email(email):
+    try:
+        email_exists = await email_existe(email)
+        if email_exists:
+            return {"message": "Ja existe um cliente com esse E-mail"}, 200
+        return {"message": "Nao existe um cliente com esse E-mail"}, 404
+    except Exception:
+        return {"message": "Conexão perdida durante consulta ao banco"}, 503
 
 
 @app.route("/pedidos", methods=['POST'])
-def faz_pedido():
+async def faz_pedido():
     pedido = request.json
     cliente_id = pedido['cliente_id']
     formas_pagamento = pedido['formas_pagamento']
     itens_pedido = pedido['itens_pedido']
 
-    retorno = inserir_pedido(cliente_id, formas_pagamento, itens_pedido)
-    if retorno is not None:
-        return {"message": "pedido efetuado com sucesso!", "pedido_id": retorno}, 200
-    # else:
-    #     return {"message": "erro ao inserir pedido"}, 500
+    try:
+        retorno = await inserir_pedido(cliente_id, formas_pagamento, itens_pedido)
+        if retorno is not None:
+            return {"message": "pedido efetuado com sucesso!", "pedido_id": retorno}, 200
+        else:
+            return {"message": "erro ao inserir pedido"}, 500
+    except Exception:
+        return {"message": "Conexão perdida durante consulta ao banco"}, 503
 
 
 # lembrar de comentar essa parte quando for subir para o heroku
-if __name__ == "__main__":
-    app.run("localhost", port=5000, debug=True)
+# if __name__ == "__main__":
+#     app.run("localhost", port=5000, debug=True)

@@ -8,7 +8,7 @@ import jwt
 engine = engine_from_config(config, prefix='db.')
 
 
-def lista_sabores_ativos():
+async def lista_sabores_ativos():
     with engine.connect() as con:
         statement = text("""SELECT id, nome, descricao, link, ativo 
                             FROM marmitas
@@ -22,7 +22,7 @@ def lista_sabores_ativos():
     return sabores
 
 
-def lista_kits_ativos():
+async def lista_kits_ativos():
     with engine.connect() as con:
         statement = text("""SELECT id, descricao, qtd_max_marmitas, valor, ativo
                             FROM kits
@@ -36,7 +36,7 @@ def lista_kits_ativos():
     return kits
 
 
-def lista_pagamentos_ativo():
+async def lista_pagamentos_ativo():
     with engine.connect() as con:
         statement = text("""SELECT id, descricao, link 
                             FROM meios_pagamentos
@@ -50,7 +50,7 @@ def lista_pagamentos_ativo():
     return pagamento
 
 
-def cadastrar_cliente(dados):
+async def cadastrar_cliente(dados):
     nome_completo = dados["nome_completo"]
     cpf = dados["cpf"]
     nascimento = dados["nascimento"]
@@ -77,7 +77,7 @@ def cadastrar_cliente(dados):
                     complemento=complemento, bairro=bairro, email=email, senha=senha)
 
 
-def listar_clientes():
+async def listar_clientes():
     """
         Lista todos os clientes da base de dados baseado em filtros
     """
@@ -95,7 +95,7 @@ def listar_clientes():
     return clientes
 
 
-def cpf_existe(cpf):
+async def cpf_existe(cpf):
     """
         Verifica se já existe um cpf cadastrado no banco
     """
@@ -111,7 +111,7 @@ def cpf_existe(cpf):
             return False
 
 
-def email_existe(email):
+async def email_existe(email):
     """
         Verifica se já existe um e-mail cadastrado no banco
     """
@@ -127,7 +127,7 @@ def email_existe(email):
             return False
 
 
-def inserir_pedido(cliente_id, formas_pagamento, itens_pedido):
+async def inserir_pedido(cliente_id, formas_pagamento, itens_pedido):
 
     data_emissao = datetime.now()
     
