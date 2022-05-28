@@ -83,7 +83,7 @@ async def listar_clientes():
     """
     #TODO -> precisamos implementar os filtros de buscas
     with engine.connect() as con:
-        statement = text("""SELECT nome_completo, cpf, nascimento, genero, celular, cep, logradouro, numero, complemento, bairro, email, senha 
+        statement = text("""SELECT id, nome_completo, cpf, nascimento, genero, celular, cep, logradouro, numero, complemento, bairro, email, senha 
                             FROM clientes"""
                             )
         rs = con.execute(statement)
