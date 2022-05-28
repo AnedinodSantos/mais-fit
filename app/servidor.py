@@ -45,7 +45,7 @@ async def listar_pagamentos():
 async def cadastra_cliente():
     dados_cliente = request.json
 
-    idade = await retorna_idade(dados_cliente['nascimento'])
+    idade = retorna_idade(dados_cliente['nascimento'])
     cpf_exists = await cpf_existe(dados_cliente['cpf'])
     email_exists = await email_existe(dados_cliente['email'])
 
